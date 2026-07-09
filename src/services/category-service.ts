@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
-import { CategoryModel } from "@/models/category";
 import { connectToDatabase } from "@/lib/mongoose";
+import { CategoryRepository } from "@/repositories/category-repository";
+import { ProductRepository } from "@/repositories/product-repository";
 
 export type CategoryListQuery = {
   search?: string;
@@ -45,6 +46,9 @@ export type CategoryCreateInput = {
 export type CategoryUpdateInput = Partial<CategoryCreateInput>;
 
 export class CategoryService {
+  private readonly categories = new CategoryRepository();
+  private readonly products = new ProductRepository();
+
   async list(query: CategoryListQuery): Promise<CategoryListResult> {
     await connectToDatabase();
 
@@ -57,31 +61,11 @@ export class CategoryService {
       limit = 10,
     } = query;
 
-    const filter: Record<string, unknown> = {};
-
-    if (active !== undefined) {
-      filter.active = active;
-    }
-
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { slug: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    const skip = (page - 1) * limit;
-    const direction = sortOrder === "asc" ? 1 : -1;
-
-    const [items, total] = await Promise.all([
-      CategoryModel.find(filter)
-        .sort({ [sortBy]: direction })
-        .skip(skip)
-        .limit(limit)
-        .lean()
-        .exec(),
-      CategoryModel.countDocuments(filter),
-    ]);
+    const { items, total } = await this.categories.list(
+      { search, active },
+      { sortBy, sortOrder },
+      { page, limit },
+    );
 
     return {
       items: items.map((item) => ({
@@ -114,7 +98,7 @@ export class CategoryService {
       throw error;
     }
 
-    const category = await CategoryModel.findById(id).lean().exec();
+    const category = await this.categories.findLeanById(id);
 
     if (!category) {
       const error = new Error("Category not found");
@@ -139,11 +123,7 @@ export class CategoryService {
   async create(input: CategoryCreateInput) {
     await connectToDatabase();
 
-    const existing = await CategoryModel.findOne({
-      slug: input.slug,
-    })
-      .lean()
-      .exec();
+    const existing = await this.categories.findBySlug(input.slug);
 
     if (existing) {
       const error = new Error("Category with this slug already exists");
@@ -151,7 +131,7 @@ export class CategoryService {
       throw error;
     }
 
-    const category = await CategoryModel.create({
+    const category = await this.categories.create({
       name: input.name,
       slug: input.slug,
       icon: input.icon,
@@ -185,12 +165,7 @@ export class CategoryService {
     }
 
     if (input.slug) {
-      const existing = await CategoryModel.findOne({
-        _id: { $ne: new Types.ObjectId(id) },
-        slug: input.slug,
-      })
-        .lean()
-        .exec();
+      const existing = await this.categories.findDuplicateSlug(id, input.slug);
 
       if (existing) {
         const error = new Error("Category with this slug already exists");
@@ -199,12 +174,7 @@ export class CategoryService {
       }
     }
 
-    const category = await CategoryModel.findByIdAndUpdate(id, input, {
-      new: true,
-      runValidators: true,
-    })
-      .lean()
-      .exec();
+    const category = await this.categories.updateById(id, input);
 
     if (!category) {
       const error = new Error("Category not found");
@@ -235,9 +205,14 @@ export class CategoryService {
       throw error;
     }
 
-    const category = await CategoryModel.findByIdAndDelete(id)
-      .lean()
-      .exec();
+    const productCount = await this.products.countByCategoryId(id);
+    if (productCount > 0) {
+      const error = new Error("Cannot delete category with associated products");
+      (error as { code?: string }).code = "CATEGORY_IN_USE";
+      throw error;
+    }
+
+    const category = await this.categories.deleteById(id);
 
     if (!category) {
       const error = new Error("Category not found");

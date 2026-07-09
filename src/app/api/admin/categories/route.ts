@@ -33,7 +33,8 @@ export const GET = requireAuth(async (req: NextRequest) => {
     const result = await service.list(parsed.data);
     return jsonSuccess(result, 200, "Categories retrieved");
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to list categories";
+    const message =
+      error instanceof Error ? error.message : "Failed to list categories";
     return jsonError(500, message, "INTERNAL_ERROR");
   }
 });
@@ -56,7 +57,8 @@ export const POST = requireAuth(async (req: NextRequest) => {
     const category = await service.create(parsed.data);
     return jsonSuccess(category, 201, "Category created successfully");
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create category";
+    const message =
+      error instanceof Error ? error.message : "Failed to create category";
     const code = (error as { code?: string } | null)?.code;
 
     if (code === "SLUG_EXISTS") {

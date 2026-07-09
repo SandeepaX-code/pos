@@ -46,6 +46,8 @@ async function main() {
     { name: "admin-permissions", path: "/api/admin/permissions", expectedStatuses: [401] },
     { name: "users", path: "/api/users", expectedStatuses: [401] },
     { name: "roles", path: "/api/roles", expectedStatuses: [401] },
+    { name: "admin-categories", path: "/api/admin/categories", expectedStatuses: [401] },
+    { name: "admin-products", path: "/api/admin/products", expectedStatuses: [401] },
   ];
 
   const startedAt = Date.now();

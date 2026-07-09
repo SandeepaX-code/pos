@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
-import { ProductModel, type ProductDocument } from "@/models/product";
-import { CategoryModel } from "@/models/category";
+import { type ProductDocument } from "@/models/product";
 import { connectToDatabase } from "@/lib/mongoose";
+import { ProductRepository } from "@/repositories/product-repository";
+import { CategoryRepository } from "@/repositories/category-repository";
 
 export type CategoryRef = {
   _id?: Types.ObjectId;
@@ -84,13 +85,19 @@ type ProductLean = Partial<ProductDocument> & {
 };
 
 export class ProductService {
+  private readonly products = new ProductRepository();
+  private readonly categories = new CategoryRepository();
+
   private formatProduct(product: ProductLean) {
     let categoryId = "";
     let categoryName: string | undefined;
 
     if (product.categoryId instanceof Types.ObjectId) {
       categoryId = String(product.categoryId);
-    } else if (typeof product.categoryId === "object" && product.categoryId !== null) {
+    } else if (
+      typeof product.categoryId === "object" &&
+      product.categoryId !== null
+    ) {
       const catRef = product.categoryId as CategoryRef;
       categoryId = String(catRef._id);
       categoryName = catRef.name;
@@ -137,44 +144,14 @@ export class ProductService {
       limit = 10,
     } = query;
 
-    const filter: Record<string, unknown> = {};
-
-    if (available !== undefined) {
-      filter.available = available;
-    }
-
-    if (categoryId && Types.ObjectId.isValid(categoryId)) {
-      filter.categoryId = new Types.ObjectId(categoryId);
-    }
-
-    if (branchId && Types.ObjectId.isValid(branchId)) {
-      filter.branchId = new Types.ObjectId(branchId);
-    }
-
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { sku: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    const skip = (page - 1) * limit;
-    const direction = sortOrder === "asc" ? 1 : -1;
-
-    const [items, total] = await Promise.all([
-      ProductModel.find(filter)
-        .populate("categoryId", "name")
-        .sort({ [sortBy]: direction })
-        .skip(skip)
-        .limit(limit)
-        .lean()
-        .exec(),
-      ProductModel.countDocuments(filter),
-    ]);
+    const { items, total } = await this.products.list(
+      { search, categoryId, available, branchId },
+      { sortBy, sortOrder },
+      { page, limit },
+    );
 
     return {
-      items: items.map((item) => this.formatProduct(item)),
+      items: items.map((item) => this.formatProduct(item as ProductLean)),
       pagination: {
         page,
         limit,
@@ -193,10 +170,7 @@ export class ProductService {
       throw error;
     }
 
-    const product = await ProductModel.findById(id)
-      .populate("categoryId", "name")
-      .lean()
-      .exec();
+    const product = await this.products.findLeanById(id);
 
     if (!product) {
       const error = new Error("Product not found");
@@ -204,7 +178,7 @@ export class ProductService {
       throw error;
     }
 
-    return this.formatProduct(product);
+    return this.formatProduct(product as ProductLean);
   }
 
   async create(input: ProductCreateInput) {
@@ -216,9 +190,7 @@ export class ProductService {
       throw error;
     }
 
-    const category = await CategoryModel.findById(input.categoryId)
-      .lean()
-      .exec();
+    const category = await this.categories.findLeanById(input.categoryId);
 
     if (!category) {
       const error = new Error("Category not found");
@@ -226,9 +198,7 @@ export class ProductService {
       throw error;
     }
 
-    const existingSku = await ProductModel.findOne({ sku: input.sku })
-      .lean()
-      .exec();
+    const existingSku = await this.products.findBySku(input.sku);
 
     if (existingSku) {
       const error = new Error("Product with this SKU already exists");
@@ -236,7 +206,7 @@ export class ProductService {
       throw error;
     }
 
-    const product = await ProductModel.create({
+    const product = await this.products.create({
       name: input.name,
       sku: input.sku,
       categoryId: new Types.ObjectId(input.categoryId),
@@ -252,12 +222,9 @@ export class ProductService {
       addons: input.addons || [],
     });
 
-    const populated = await ProductModel.findById(product._id)
-      .populate("categoryId", "name")
-      .lean()
-      .exec();
+    const populated = await this.products.findLeanById(String(product._id));
 
-    return this.formatProduct(populated);
+    return this.formatProduct(populated as ProductLean);
   }
 
   async update(id: string, input: ProductUpdateInput) {
@@ -270,9 +237,7 @@ export class ProductService {
     }
 
     if (input.categoryId && Types.ObjectId.isValid(input.categoryId)) {
-      const category = await CategoryModel.findById(input.categoryId)
-        .lean()
-        .exec();
+      const category = await this.categories.findLeanById(input.categoryId);
 
       if (!category) {
         const error = new Error("Category not found");
@@ -282,12 +247,7 @@ export class ProductService {
     }
 
     if (input.sku) {
-      const existingSku = await ProductModel.findOne({
-        _id: { $ne: new Types.ObjectId(id) },
-        sku: input.sku,
-      })
-        .lean()
-        .exec();
+      const existingSku = await this.products.findDuplicateSku(id, input.sku);
 
       if (existingSku) {
         const error = new Error("Product with this SKU already exists");
@@ -296,21 +256,15 @@ export class ProductService {
       }
     }
 
-    const updateData = { ...input };
+    const updateData = { ...input } as Record<string, unknown>;
     if (input.categoryId) {
-      updateData.categoryId = new Types.ObjectId(input.categoryId) as unknown as string;
+      updateData.categoryId = new Types.ObjectId(input.categoryId);
     }
     if (input.branchId) {
-      updateData.branchId = new Types.ObjectId(input.branchId) as unknown as string;
+      updateData.branchId = new Types.ObjectId(input.branchId);
     }
 
-    const product = await ProductModel.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    })
-      .populate("categoryId", "name")
-      .lean()
-      .exec();
+    const product = await this.products.updateById(id, updateData);
 
     if (!product) {
       const error = new Error("Product not found");
@@ -318,7 +272,7 @@ export class ProductService {
       throw error;
     }
 
-    return this.formatProduct(product);
+    return this.formatProduct(product as ProductLean);
   }
 
   async delete(id: string) {
@@ -330,9 +284,7 @@ export class ProductService {
       throw error;
     }
 
-    const product = await ProductModel.findByIdAndDelete(id)
-      .lean()
-      .exec();
+    const product = await this.products.deleteById(id);
 
     if (!product) {
       const error = new Error("Product not found");
@@ -356,13 +308,7 @@ export class ProductService {
       throw error;
     }
 
-    const product = await ProductModel.findByIdAndUpdate(
-      id,
-      { $set: { stock: Math.max(0, quantity) } },
-      { new: true, runValidators: true },
-    )
-      .lean()
-      .exec();
+    const product = await this.products.updateStockById(id, quantity);
 
     if (!product) {
       const error = new Error("Product not found");
@@ -370,6 +316,6 @@ export class ProductService {
       throw error;
     }
 
-    return this.formatProduct(product);
+    return this.formatProduct(product as ProductLean);
   }
 }

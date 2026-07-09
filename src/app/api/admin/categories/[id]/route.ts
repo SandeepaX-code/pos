@@ -84,6 +84,10 @@ export const DELETE = requireAuth(
         return jsonError(404, message, "NOT_FOUND");
       }
 
+      if (code === "CATEGORY_IN_USE") {
+        return jsonError(400, message, "VALIDATION_ERROR");
+      }
+
       return jsonError(500, message, "INTERNAL_ERROR");
     }
   },
