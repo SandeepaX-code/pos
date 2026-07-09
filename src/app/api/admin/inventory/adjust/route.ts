@@ -1,4 +1,4 @@
-import { adjustInventory } from "@/lib/server/restaurant-operations";
+import { InventoryService } from "@/services/inventory-service";
 import { requireAuth, requirePermission } from "@/lib/auth/auth";
 import { adminInventoryAdjustmentSchema } from "@/validation/admin";
 import { jsonError, jsonSuccess } from "@/utils/http";
@@ -9,7 +9,17 @@ export const POST = requireAuth(async (req) => {
 
   try {
     const parsed = adminInventoryAdjustmentSchema.parse(await req.json());
-    const item = await adjustInventory(parsed);
+    const service = new InventoryService();
+    const item = await service.adjustInventory({
+      inventoryId: parsed.inventoryId,
+      type: parsed.type,
+      quantity: parsed.quantity,
+      reason: parsed.reason,
+      referenceType: parsed.referenceType ?? undefined,
+      referenceId: parsed.referenceId ?? undefined,
+      createdBy: parsed.createdBy,
+      branchId: parsed.branchId,
+    });
     return jsonSuccess(item, 200, "Inventory adjusted");
   } catch (error) {
     const message =
