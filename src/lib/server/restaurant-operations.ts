@@ -13,6 +13,7 @@ import { PaymentModel } from "@/models/payment";
 import { RestaurantTableModel } from "@/models/restaurant-table";
 import { ActivityLogModel } from "@/models/activity-log";
 import { createEscPosPayload } from "@/lib/server/receipt-bridge";
+import { InventoryService } from "@/services/inventory-service";
 import {
   checkoutOrderSchema,
   inventoryAdjustmentSchema,
@@ -189,23 +190,17 @@ export async function checkoutOrder(input: unknown) {
 
 export async function adjustInventory(input: unknown) {
   const parsed = inventoryAdjustmentSchema.parse(input);
-  await connectToDatabase();
-
-  const inventory = await InventoryModel.findById(parsed.inventoryId).exec();
-
-  if (!inventory) {
-    throw new Error("Inventory item not found");
-  }
-
-  const delta =
-    parsed.type === "out" || parsed.type === "waste"
-      ? -parsed.quantity
-      : parsed.quantity;
-  inventory.stockOnHand = Math.max(inventory.stockOnHand + delta, 0);
-  inventory.lastCountedAt = new Date();
-  await inventory.save();
-
-  return inventory;
+  const service = new InventoryService();
+  return service.adjustInventory({
+    inventoryId: parsed.inventoryId,
+    type: parsed.type,
+    quantity: parsed.quantity,
+    reason: parsed.reason,
+    referenceType: parsed.referenceType ?? undefined,
+    referenceId: parsed.referenceId ?? undefined,
+    createdBy: parsed.createdBy,
+    branchId: parsed.branchId,
+  });
 }
 
 export async function upsertCustomer(input: unknown) {

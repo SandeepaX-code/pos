@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
-import { RecipeModel } from "@/models/recipe";
 import { connectToDatabase } from "@/lib/mongoose";
+import { RecipeRepository } from "@/repositories/recipe-repository";
 
 export type RecipeItemInput = {
   productId: string; // ingredient product (inventory product)
@@ -21,9 +21,11 @@ export type RecipeCreateInput = {
 };
 
 export class RecipeService {
+  private readonly recipes = new RecipeRepository();
+
   async list() {
     await connectToDatabase();
-    const items = await RecipeModel.find().lean().exec();
+    const items = await this.recipes.find({});
     return items.map((r) => ({
       id: String(r._id),
       productId: String(r.productId),
@@ -45,7 +47,7 @@ export class RecipeService {
       throw err;
     }
 
-    const r = await RecipeModel.findById(id).lean().exec();
+    const r = await this.recipes.findLeanById(id);
     if (!r) {
       const err = new Error("Recipe not found");
       (err as { code?: string }).code = "NOT_FOUND";
@@ -68,7 +70,9 @@ export class RecipeService {
   async getByProductId(productId: string) {
     await connectToDatabase();
     if (!Types.ObjectId.isValid(productId)) return null;
-    const r = await RecipeModel.findOne({ productId: new Types.ObjectId(productId) }).lean().exec();
+    const r = await this.recipes.findLeanOne({
+      productId: new Types.ObjectId(productId),
+    });
     if (!r) return null;
     return {
       id: String(r._id),
@@ -93,14 +97,16 @@ export class RecipeService {
       throw err;
     }
 
-    const existing = await RecipeModel.findOne({ productId: new Types.ObjectId(input.productId) }).lean().exec();
+    const existing = await this.recipes.findLeanOne({
+      productId: new Types.ObjectId(input.productId),
+    });
     if (existing) {
       const err = new Error("Recipe for this product already exists");
       (err as { code?: string }).code = "ALREADY_EXISTS";
       throw err;
     }
 
-    const recipe = await RecipeModel.create({
+    const recipe = await this.recipes.create({
       productId: new Types.ObjectId(input.productId),
       name: input.name,
       yieldCount: input.yieldCount,
@@ -130,7 +136,7 @@ export class RecipeService {
       updateData.productId = new Types.ObjectId(input.productId);
     }
 
-    const recipe = await RecipeModel.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).lean().exec();
+    const recipe = await this.recipes.updateById(id, updateData);
     if (!recipe) {
       const err = new Error("Recipe not found");
       (err as { code?: string }).code = "NOT_FOUND";
@@ -148,7 +154,7 @@ export class RecipeService {
       throw err;
     }
 
-    const deleted = await RecipeModel.findByIdAndDelete(id).lean().exec();
+    const deleted = await this.recipes.deleteById(id);
     if (!deleted) {
       const err = new Error("Recipe not found");
       (err as { code?: string }).code = "NOT_FOUND";
