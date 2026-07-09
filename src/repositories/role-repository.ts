@@ -8,7 +8,7 @@ export type RoleListFilter = {
   active?: boolean;
 };
 
-export class RoleManagementRepository {
+export class RoleRepository {
   async findById(id: string) {
     return RoleModel.findById(id).populate("permissions").exec();
   }

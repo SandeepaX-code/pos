@@ -123,3 +123,11 @@ export type UserProfileUpdateInput = z.infer<typeof userProfileUpdateSchema>;
 export type RoleListQueryInput = z.infer<typeof roleListQuerySchema>;
 export type RoleCreateInput = z.infer<typeof roleCreateSchema>;
 export type RoleUpdateInput = z.infer<typeof roleUpdateSchema>;
+
+export const permissionListQuerySchema = paginationSchema.extend({
+  search: z.string().trim().max(160).optional(),
+  group: z.string().trim().max(80).optional(),
+});
+
+export type PermissionListQueryInput = z.infer<typeof permissionListQuerySchema>;
+

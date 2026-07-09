@@ -18,7 +18,7 @@ export type UserListResult<T> = {
   total: number;
 };
 
-export class UserManagementRepository {
+export class UserRepository {
   private buildFilter(query: UserQuery) {
     const filter: Record<string, unknown> & {
       $or?: Array<Record<string, unknown>>;

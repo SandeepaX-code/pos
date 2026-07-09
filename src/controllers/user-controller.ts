@@ -12,7 +12,7 @@ import {
   userUpdateSchema,
 } from "@/validators/rbac";
 
-import { UserManagementService } from "@/services/user-management-service";
+import { UserService } from "@/services/user-service";
 
 function toStatus(code: string | undefined): {
   status: number;
@@ -63,7 +63,7 @@ export async function listUsersController(req: NextRequest) {
   }
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const result = await service.listUsers(parsed.data);
     return jsonSuccess({
       data: result.items,
@@ -81,7 +81,7 @@ export async function listUsersController(req: NextRequest) {
 
 export async function getUserController(id: string, detailed = false) {
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const user = detailed
       ? await service.getUserDetails(id)
       : await service.getUser(id);
@@ -110,7 +110,7 @@ export async function createUserController(
   const { confirmPassword, ...payload } = parsed.data;
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const user = await service.createUser(payload, actor);
     return jsonSuccess(user, 201, "User created successfully");
   } catch (error) {
@@ -135,7 +135,7 @@ export async function updateUserController(
   }
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const user = await service.updateUser(id, parsed.data, actor);
     return jsonSuccess(user, 200, "User updated successfully");
   } catch (error) {
@@ -148,7 +148,7 @@ export async function deleteUserController(
   actor: AuthenticatedUser,
 ) {
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const user = await service.deleteUser(id, actor);
     return jsonSuccess(user, 200, "User deleted successfully");
   } catch (error) {
@@ -173,7 +173,7 @@ export async function setUserStatusController(
   }
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const user = await service.setUserStatus(id, parsed.data.active, actor);
     return jsonSuccess(
       user,
@@ -203,7 +203,7 @@ export async function resetPasswordController(
   }
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const result = await service.resetPassword(
       id,
       parsed.data.newPassword,
@@ -237,7 +237,7 @@ export async function changePasswordController(
   }
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const user = await service.changePassword(actor.id, {
       currentPassword: parsed.data.currentPassword,
       newPassword: parsed.data.newPassword,
@@ -250,7 +250,7 @@ export async function changePasswordController(
 
 export async function getProfileController(actor: AuthenticatedUser) {
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const profile = await service.getProfile(actor.id);
     return jsonSuccess(profile);
   } catch (error) {
@@ -276,7 +276,7 @@ export async function updateProfileController(
   }
 
   try {
-    const service = new UserManagementService();
+    const service = new UserService();
     const profile = await service.updateProfile(actor.id, parsed.data);
     return jsonSuccess(profile, 200, "Profile updated successfully");
   } catch (error) {

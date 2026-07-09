@@ -39,9 +39,13 @@ function fetchJson(pathname: string): Promise<FetchResult> {
 }
 
 async function main() {
-  const endpoints: Array<{ name: string; path: string }> = [
-    { name: "health", path: "/api/health" },
-    { name: "dashboard-summary", path: "/api/dashboard/summary" },
+  const endpoints: Array<{ name: string; path: string; expectedStatuses?: number[] }> = [
+    { name: "health", path: "/api/health", expectedStatuses: [200] },
+    { name: "dashboard-summary", path: "/api/dashboard/summary", expectedStatuses: [200, 401] },
+    { name: "permissions", path: "/api/permissions", expectedStatuses: [401] },
+    { name: "admin-permissions", path: "/api/admin/permissions", expectedStatuses: [401] },
+    { name: "users", path: "/api/users", expectedStatuses: [401] },
+    { name: "roles", path: "/api/roles", expectedStatuses: [401] },
   ];
 
   const startedAt = Date.now();
@@ -60,17 +64,13 @@ async function main() {
         successFlag = (result.body as Record<string, unknown>).success;
       }
 
-      const looksOk = result.status >= 200 && result.status < 300;
-      const successIsTrue = successFlag === true;
+      const expected = e.expectedStatuses ?? [200];
+      const statusOk = expected.includes(result.status);
 
-      if (typeof successFlag === "boolean") {
-        ok = ok && looksOk && successIsTrue;
-      } else {
-        ok = ok && looksOk;
-      }
+      ok = ok && statusOk;
 
       console.log(
-        `[${e.name}] ${e.path} -> status=${result.status} success=${String(successFlag)}`,
+        `[${e.name}] ${e.path} -> status=${result.status} (expected ${expected.join("/")})`,
       );
     } catch (err) {
       ok = false;

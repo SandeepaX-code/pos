@@ -8,7 +8,7 @@ import {
   roleUpdateSchema,
 } from "@/validators/rbac";
 
-import { RoleManagementService } from "@/services/role-management-service";
+import { RoleService } from "@/services/role-service";
 
 function toStatus(code: string | undefined): {
   status: number;
@@ -52,7 +52,7 @@ export async function listRolesController(req: NextRequest) {
   }
 
   try {
-    const service = new RoleManagementService();
+    const service = new RoleService();
     const result = await service.listRoles(parsed.data);
     return jsonSuccess({
       data: result.items,
@@ -70,7 +70,7 @@ export async function listRolesController(req: NextRequest) {
 
 export async function getRoleController(id: string) {
   try {
-    const service = new RoleManagementService();
+    const service = new RoleService();
     const role = await service.getRole(id);
     return jsonSuccess(role);
   } catch (error) {
@@ -94,7 +94,7 @@ export async function createRoleController(
   }
 
   try {
-    const service = new RoleManagementService();
+    const service = new RoleService();
     const role = await service.createRole(parsed.data, actor);
     return jsonSuccess(role, 201);
   } catch (error) {
@@ -119,7 +119,7 @@ export async function updateRoleController(
   }
 
   try {
-    const service = new RoleManagementService();
+    const service = new RoleService();
     const role = await service.updateRole(id, parsed.data, actor);
     return jsonSuccess(role);
   } catch (error) {
@@ -132,7 +132,7 @@ export async function deleteRoleController(
   actor: AuthenticatedUser,
 ) {
   try {
-    const service = new RoleManagementService();
+    const service = new RoleService();
     const role = await service.deleteRole(id, actor);
     return jsonSuccess(role);
   } catch (error) {

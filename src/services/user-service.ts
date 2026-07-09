@@ -13,8 +13,8 @@ import { RefreshTokenModel } from "@/models/refresh-token";
 import { RoleModel } from "@/models/role";
 
 import { ActivityLogService } from "./activity-log-service";
-import { RoleManagementRepository } from "@/repositories/role-management-repository";
-import { UserManagementRepository } from "@/repositories/user-management-repository";
+import { RoleRepository } from "@/repositories/role-repository";
+import { UserRepository } from "@/repositories/user-repository";
 
 type UserActor = {
   id: string;
@@ -134,9 +134,9 @@ async function resolveRolePermissions(roleName: string, roleId?: unknown) {
   return staticPermissions.map((key) => ({ key, label: key }));
 }
 
-export class UserManagementService {
-  private readonly users = new UserManagementRepository();
-  private readonly roles = new RoleManagementRepository();
+export class UserService {
+  private readonly users = new UserRepository();
+  private readonly roles = new RoleRepository();
   private readonly activity = new ActivityLogService();
 
   async listUsers(input: {

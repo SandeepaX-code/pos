@@ -4,7 +4,7 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { PermissionModel } from "@/models/permission";
 
 import { ActivityLogService } from "./activity-log-service";
-import { RoleManagementRepository } from "@/repositories/role-management-repository";
+import { RoleRepository } from "@/repositories/role-repository";
 
 type Actor = {
   id: string;
@@ -103,8 +103,8 @@ function assertCanManageSystemRole(
   }
 }
 
-export class RoleManagementService {
-  private readonly roles = new RoleManagementRepository();
+export class RoleService {
+  private readonly roles = new RoleRepository();
   private readonly activity = new ActivityLogService();
 
   async listRoles(input: {
