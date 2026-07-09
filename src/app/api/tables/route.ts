@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { TableRepository } from "@/repositories/table-repository";
+import { TableService } from "@/services/table-service";
 import { connectToDatabase } from "@/lib/mongoose";
-import { TableRepository } from "@/lib/table-management/table-repository";
-import { TableService } from "@/lib/table-management/table-service";
 import {
   tableCreateSchema,
   tableListQuerySchema,

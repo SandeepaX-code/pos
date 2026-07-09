@@ -1,10 +1,9 @@
 import { NextRequest } from "next/server";
-
-import { connectToDatabase } from "@/lib/mongoose";
+import { TableRepository } from "@/repositories/table-repository";
+import { TableService } from "@/services/table-service";
 import { requireAuth, requirePermission } from "@/lib/auth/auth";
 import { jsonError, jsonSuccess } from "@/utils/http";
-import { TableRepository } from "@/lib/table-management/table-repository";
-import { TableService } from "@/lib/table-management/table-service";
+import { connectToDatabase } from "@/lib/mongoose";
 import {
   tableIdParamSchema,
   tableUpdateSchema,
