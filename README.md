@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# restaurant-pos (Next.js)
 
-## Getting Started
-
-First, run the development server:
+## Quick run (dev)
 
 ```bash
+cd d:\Syzygy\restaurant-pos
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quick run (production)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> Production build may require Firebase Admin environment variables.
 
-## Learn More
+### 1) set env vars (PowerShell)
 
-To learn more about Next.js, take a look at the following resources:
+Set these before build/start:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Example (replace values):
 
-## Deploy on Vercel
+```powershell
+$env:FIREBASE_PROJECT_ID="your-project-id"
+$env:FIREBASE_CLIENT_EMAIL="your-client-email"
+$env:FIREBASE_PRIVATE_KEY="your-private-key-with-newlines"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 2) build + start
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+cd d:\Syzygy\restaurant-pos
+npm run build:backend
+npm run start:backend
+```
+
+## Verify endpoints
+
+This project includes a simple endpoint checker:
+
+```bash
+cd d:\Syzygy\restaurant-pos
+npm run check:endpoints
+```
+
+It checks:
+
+- `GET /api/health`
+- `GET /api/dashboard/summary`
+
+## Notes
+
+- Backend uses Firebase Admin in `src/lib/firebase/admin.ts`. If the env vars are missing, Next production build can fail during page-data collection.
+- If you only want to run UI features during local development, prefer `npm run dev`.
