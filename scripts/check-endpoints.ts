@@ -55,6 +55,8 @@ async function main() {
     { name: "bills", path: "/api/bills", expectedStatuses: [401] },
     { name: "admin-suppliers", path: "/api/admin/suppliers", expectedStatuses: [401] },
     { name: "admin-purchase-orders", path: "/api/admin/purchase-orders", expectedStatuses: [401] },
+    { name: "admin-branches", path: "/api/admin/branches", expectedStatuses: [401] },
+    { name: "admin-settings", path: "/api/admin/settings", expectedStatuses: [401] },
     { name: "reports-sales", path: "/api/admin/reports/sales", expectedStatuses: [401] },
     { name: "reports-revenue", path: "/api/admin/reports/revenue", expectedStatuses: [401] },
     { name: "reports-best-sellers", path: "/api/admin/reports/best-sellers", expectedStatuses: [401] },

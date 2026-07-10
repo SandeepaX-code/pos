@@ -1,24 +1,33 @@
 import { requireAuth, requirePermission } from "@/lib/auth/auth";
-import { connectToDatabase } from "@/lib/mongoose";
-import { repositories } from "@/lib/data-access";
+import { BranchService } from "@/services/branch-service";
 import { branchUpsertSchema } from "@/validation/admin";
-import { jsonSuccess } from "@/utils/http";
+import { jsonSuccess, jsonError } from "@/utils/http";
+
+export const dynamic = "force-dynamic";
 
 export const GET = requireAuth(async (req) => {
   const denied = await requirePermission("branches.manage")(req);
   if (denied) return denied;
 
-  await connectToDatabase();
-  const branches = await repositories.branches.list({});
-  return jsonSuccess(branches, 200, "Branches retrieved");
+  try {
+    const service = new BranchService();
+    const list = await service.list(req.user!);
+    return jsonSuccess(list, 200, "Branches retrieved");
+  } catch (e: unknown) {
+    return jsonError(500, (e as Error).message || "Failed to retrieve branches", "INTERNAL_ERROR");
+  }
 });
 
 export const POST = requireAuth(async (req) => {
   const denied = await requirePermission("branches.manage")(req);
   if (denied) return denied;
 
-  const parsed = branchUpsertSchema.parse(await req.json());
-  await connectToDatabase();
-  const branch = await repositories.branches.create(parsed);
-  return jsonSuccess(branch, 201, "Branch created");
+  try {
+    const parsed = branchUpsertSchema.parse(await req.json());
+    const service = new BranchService();
+    const branch = await service.create(req.user!, parsed);
+    return jsonSuccess(branch, 201, "Branch created");
+  } catch (e: unknown) {
+    return jsonError(400, (e as Error).message || "Failed to create branch", "VALIDATION_ERROR");
+  }
 });
