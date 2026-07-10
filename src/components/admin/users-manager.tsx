@@ -95,7 +95,8 @@ export function UsersManager({
     );
 
     if (!response.ok) {
-      toast.error("User save failed.");
+      const errData = await response.json().catch(() => null);
+      toast.error(errData?.message || "User save failed.");
       return;
     }
 
@@ -127,6 +128,8 @@ export function UsersManager({
     router.refresh();
   };
 
+  const { errors } = form.formState;
+
   return (
     <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
       <Card>
@@ -135,42 +138,63 @@ export function UsersManager({
         </CardHeader>
         <CardContent>
           <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-            <Input placeholder="Full name" {...form.register("fullName")} />
-            <Input placeholder="Username" {...form.register("username")} />
-            <Input
-              placeholder="Email"
-              type="email"
-              {...form.register("email")}
-            />
-            <Input placeholder="Phone" {...form.register("phone")} />
-            <select
-              className="h-11 rounded-2xl border border-orange-200 bg-white px-4 text-sm outline-none"
-              {...form.register("role")}
-            >
-              <option value="superAdmin">Super Admin</option>
-              <option value="admin">Admin</option>
-              <option value="cashier">Cashier</option>
-              <option value="waiter">Waiter</option>
-              <option value="kitchenStaff">Kitchen Staff</option>
-              <option value="inventoryManager">Inventory Manager</option>
-              <option value="accountant">Accountant</option>
-            </select>
-            <select
-              className="h-11 rounded-2xl border border-orange-200 bg-white px-4 text-sm outline-none"
-              {...form.register("branchId")}
-            >
-              <option value="">Select branch</option>
-              {branches.map((branch) => (
-                <option key={branch._id} value={branch._id}>
-                  {branch.name} ({branch.code})
-                </option>
-              ))}
-            </select>
-            <Input
-              placeholder={selectedId ? "New password (optional)" : "Password"}
-              type="password"
-              {...form.register("password")}
-            />
+            <div className="space-y-1">
+              <Input placeholder="Full name" {...form.register("fullName")} />
+              {errors.fullName && <p className="text-xs text-rose-500 px-1">{errors.fullName.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Input placeholder="Username" {...form.register("username")} />
+              {errors.username && <p className="text-xs text-rose-500 px-1">{errors.username.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Input
+                placeholder="Email"
+                type="email"
+                {...form.register("email")}
+              />
+              {errors.email && <p className="text-xs text-rose-500 px-1">{errors.email.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Input placeholder="Phone" {...form.register("phone")} />
+              {errors.phone && <p className="text-xs text-rose-500 px-1">{errors.phone.message}</p>}
+            </div>
+            <div className="space-y-1 flex flex-col">
+              <select
+                className="h-11 rounded-2xl border border-orange-200 bg-white px-4 text-sm outline-none w-full"
+                {...form.register("role")}
+              >
+                <option value="superAdmin">Super Admin</option>
+                <option value="admin">Admin</option>
+                <option value="cashier">Cashier</option>
+                <option value="waiter">Waiter</option>
+                <option value="kitchenStaff">Kitchen Staff</option>
+                <option value="inventoryManager">Inventory Manager</option>
+                <option value="accountant">Accountant</option>
+              </select>
+              {errors.role && <p className="text-xs text-rose-500 px-1 mt-1">{errors.role.message}</p>}
+            </div>
+            <div className="space-y-1 flex flex-col">
+              <select
+                className="h-11 rounded-2xl border border-orange-200 bg-white px-4 text-sm outline-none w-full"
+                {...form.register("branchId")}
+              >
+                <option value="">Select branch</option>
+                {branches.map((branch) => (
+                  <option key={branch._id} value={branch._id}>
+                    {branch.name} ({branch.code})
+                  </option>
+                ))}
+              </select>
+              {errors.branchId && <p className="text-xs text-rose-500 px-1 mt-1">{errors.branchId.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Input
+                placeholder={selectedId ? "New password (optional)" : "Password"}
+                type="password"
+                {...form.register("password")}
+              />
+              {errors.password && <p className="text-xs text-rose-500 px-1">{errors.password.message}</p>}
+            </div>
             <label className="flex items-center gap-2 text-sm text-slate-600">
               <input type="checkbox" {...form.register("active")} /> Active
             </label>
