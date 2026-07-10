@@ -37,22 +37,24 @@ export default async function Home() {
     }
   }
 
+  const isCashier = session.user.role === "cashier";
+
   return (
     <AppShell>
       <main className="space-y-6">
         <section className="rounded-[28px] border border-orange-100 bg-[linear-gradient(135deg,_rgba(255,255,255,0.96)_0%,_rgba(255,248,241,0.94)_100%)] p-6 shadow-[0_20px_70px_rgba(148,163,184,0.14)] md:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-4xl">
-              <Badge>Live operations overview</Badge>
+              <Badge>{isCashier ? "Cashier Operational Desk" : "Live operations overview"}</Badge>
               <h1 className="mt-4 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
-                Restaurant operations, POS, kitchen, inventory, and finance in
-                one production-ready workspace.
+                {isCashier
+                  ? "Real-time order tracker and billing terminal overview."
+                  : "Restaurant operations, POS, kitchen, inventory, and finance in one production-ready workspace."}
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 md:text-lg">
-                SYZYGY POS Suite gives super admins, managers, cashiers, waiters,
-                kitchen staff, and accountants a shared operating system with
-                role isolation, real-time order visibility, and printer-aware
-                checkout.
+                {isCashier
+                  ? "Monitor all recent orders, manage table settlements, and confirm dine-in or takeaway checks."
+                  : "SYZYGY POS Suite gives super admins, managers, cashiers, waiters, kitchen staff, and accountants a shared operating system with role isolation, real-time order visibility, and printer-aware checkout."}
               </p>
             </div>
             <div className="grid gap-3 rounded-[24px] bg-slate-950 p-4 text-white shadow-[0_20px_60px_rgba(15,23,42,0.22)]">
@@ -70,8 +72,8 @@ export default async function Home() {
           </div>
         </section>
 
-        <StatsGrid />
-        <DashboardCharts />
+        {!isCashier && <StatsGrid />}
+        {!isCashier && <DashboardCharts />}
         <RecentOrders />
       </main>
     </AppShell>
