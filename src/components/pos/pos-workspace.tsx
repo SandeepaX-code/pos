@@ -731,48 +731,69 @@ export function PosWorkspace({ mode }: { mode: "dine-in" | "takeaway" }) {
             <Button variant="secondary" onClick={clearOrder} disabled={checkingOut}>
               <Trash2 className="h-4 w-4" /> Clear Order
             </Button>
-            <Button onClick={() => void checkout(paymentMethod)} disabled={checkingOut}>
-              {checkingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              {checkingOut ? "Processing..." : "Checkout"}
-            </Button>
+            {mode === "dine-in" ? (
+              <Button onClick={() => void checkout("none" as any)} disabled={checkingOut || items.length === 0}>
+                {checkingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                {checkingOut ? "Sending..." : "Send to Kitchen"}
+              </Button>
+            ) : (
+              <Button onClick={() => void checkout(paymentMethod)} disabled={checkingOut}>
+                {checkingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                {checkingOut ? "Processing..." : "Checkout"}
+              </Button>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          {mode === "dine-in" ? (
             <Button
-              variant={paymentMethod === "cash" ? "default" : "outline"}
-              onClick={() => setPaymentMethod("cash")}
+              className="w-full h-12 text-base font-semibold"
+              variant="default"
+              onClick={() => void checkout("none" as any)}
+              disabled={checkingOut || items.length === 0}
             >
-              Cash Payment
+              {checkingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <Printer className="h-5 w-5" />}
+              {checkingOut ? "Sending to Kitchen..." : "Send to Kitchen / Place Order"}
             </Button>
-            <Button
-              variant={paymentMethod === "card" ? "default" : "outline"}
-              onClick={() => setPaymentMethod("card")}
-            >
-              Card Payment
-            </Button>
-            <Button
-              variant={paymentMethod === "qr" ? "default" : "outline"}
-              onClick={() => setPaymentMethod("qr")}
-            >
-              QR Payment
-            </Button>
-            <Button
-              variant={paymentMethod === "mixed" ? "default" : "outline"}
-              onClick={() => setPaymentMethod("mixed")}
-            >
-              Mixed Payment
-            </Button>
-          </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant={paymentMethod === "cash" ? "default" : "outline"}
+                  onClick={() => setPaymentMethod("cash")}
+                >
+                  Cash Payment
+                </Button>
+                <Button
+                  variant={paymentMethod === "card" ? "default" : "outline"}
+                  onClick={() => setPaymentMethod("card")}
+                >
+                  Card Payment
+                </Button>
+                <Button
+                  variant={paymentMethod === "qr" ? "default" : "outline"}
+                  onClick={() => setPaymentMethod("qr")}
+                >
+                  QR Payment
+                </Button>
+                <Button
+                  variant={paymentMethod === "mixed" ? "default" : "outline"}
+                  onClick={() => setPaymentMethod("mixed")}
+                >
+                  Mixed Payment
+                </Button>
+              </div>
 
-          <Button
-            className="w-full"
-            variant="default"
-            onClick={() => void checkout(paymentMethod)}
-            disabled={checkingOut}
-          >
-            {checkingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
-            {checkingOut ? "Processing..." : "Print Bill & Confirm"}
-          </Button>
+              <Button
+                className="w-full"
+                variant="default"
+                onClick={() => void checkout(paymentMethod)}
+                disabled={checkingOut}
+              >
+                {checkingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+                {checkingOut ? "Processing..." : "Print Bill & Confirm"}
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

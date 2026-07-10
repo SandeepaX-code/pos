@@ -20,7 +20,7 @@ export const checkoutOrderSchema = z.object({
   customerName: z.string().max(160).optional(),
   waiterName: z.string().min(1).max(160),
   tableLabel: z.string().max(80).optional(),
-  paymentMethod: z.enum(["cash", "card", "qr", "mixed"]),
+  paymentMethod: z.enum(["cash", "card", "qr", "mixed", "none"]),
   items: z.array(orderItemSchema).min(1),
   discount: z.number().min(0).default(0),
   notes: z.string().max(1000).optional(),
