@@ -38,6 +38,7 @@ const navigation = [
   { label: "Printers", href: "/printers", icon: Printer, permission: "printers.manage" },
   { label: "Notifications", href: "/notifications", icon: Bell },
   { label: "Settings", href: "/settings", icon: HeartPulse, permission: "settings.manage" },
+  { label: "Menu Editor", href: "/admin/menu", icon: UtensilsCrossed, superAdminOnly: true },
 ];
 
 export function Sidebar() {
@@ -45,8 +46,9 @@ export function Sidebar() {
   const { data: session, status } = useSession();
 
   const filteredNavigation = navigation.filter((item) => {
-    if (!item.permission) return true;
     if (status !== "authenticated" || !session?.user) return false;
+    if (item.superAdminOnly && session.user.role !== "superAdmin") return false;
+    if (!item.permission) return true;
     return userHasPermission(
       session.user.role,
       session.user.permissions ?? [],
