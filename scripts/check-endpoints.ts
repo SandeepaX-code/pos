@@ -63,6 +63,8 @@ async function main() {
     { name: "reports-categories", path: "/api/admin/reports/categories", expectedStatuses: [401] },
     { name: "reports-profit-loss", path: "/api/admin/reports/profit-loss", expectedStatuses: [401] },
     { name: "reports-staff", path: "/api/admin/reports/staff", expectedStatuses: [401] },
+    { name: "categories-menu", path: "/api/categories/menu", expectedStatuses: [200] },
+    { name: "admin-product-price", path: "/api/admin/products/6a4ffad03b3a95cadfb7c0d5/price", expectedStatuses: [401, 405] },
   ];
 
   const startedAt = Date.now();

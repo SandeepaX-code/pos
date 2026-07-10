@@ -196,6 +196,52 @@ export class CategoryService {
     };
   }
 
+  async getMenuWithProducts() {
+    await connectToDatabase();
+
+    const { items: categories } = await this.categories.list(
+      { active: true },
+      { sortBy: "sortOrder", sortOrder: "asc" },
+      { page: 1, limit: 100 }
+    );
+
+    const menu = [];
+
+    for (const cat of categories) {
+      const { items: products } = await this.products.list(
+        { categoryId: String(cat._id), available: true },
+        { sortBy: "name", sortOrder: "asc" },
+        { page: 1, limit: 200 }
+      );
+
+      menu.push({
+        id: String(cat._id),
+        name: cat.name,
+        slug: cat.slug,
+        icon: cat.icon,
+        image: cat.image,
+        color: cat.color,
+        sortOrder: cat.sortOrder,
+        products: products.map((item) => ({
+          id: String(item._id),
+          name: item.name,
+          sku: item.sku,
+          price: item.price,
+          cost: item.cost,
+          available: (item.stock ?? 0) > 0,
+          stock: item.stock,
+          lowStockThreshold: item.lowStockThreshold ?? 0,
+          variants: item.variants || [],
+          addons: item.addons || [],
+          description: item.description,
+          image: item.image,
+        })),
+      });
+    }
+
+    return menu;
+  }
+
   async delete(id: string) {
     await connectToDatabase();
 

@@ -149,3 +149,8 @@ export type InventoryItemUpsertInput = z.infer<
 export type AdminInventoryAdjustmentInput = z.infer<
   typeof adminInventoryAdjustmentSchema
 >;
+
+export const productPricePatchSchema = z.object({
+  price: z.number().min(0),
+});
+export type ProductPricePatchInput = z.infer<typeof productPricePatchSchema>;
