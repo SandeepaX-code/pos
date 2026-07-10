@@ -46,7 +46,7 @@ export function buildEscPosReceipt(lines: ReceiptLine[]) {
   const parts: Uint8Array[] = [
     command([0x1b, 0x40]),
     command([0x1b, 0x61, 0x01]),
-    bytes("Aurum Bistro\n"),
+    bytes("SYZYGY RESTAURANTS\n"),
     command([0x1b, 0x61, 0x00]),
   ];
 

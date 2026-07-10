@@ -218,12 +218,18 @@ export class CheckoutService {
       await session.commitTransaction();
       session.endSession();
 
-      // 5. Deduct stock using the session
-      const deductionResult =
-        await this.inventoryService.performOrderInventoryDeduction(
-          String(order._id),
-          user,
-        );
+      // 5. Deduct stock (outside transaction — order is already committed)
+      let deductionResult: unknown = null;
+      try {
+        deductionResult =
+          await this.inventoryService.performOrderInventoryDeduction(
+            String(order._id),
+            user,
+          );
+      } catch (deductErr) {
+        // Log but don't fail the checkout — order is already saved
+        console.error("Inventory deduction failed (order saved):", deductErr);
+      }
 
       const customerReceipt = parsed.printCustomerReceipt
         ? createEscPosPayload(
@@ -277,7 +283,10 @@ export class CheckoutService {
         inventoryDeduction: deductionResult,
       };
     } catch (err) {
-      await session.abortTransaction();
+      // Only abort if the transaction hasn't been committed yet
+      if (session.inTransaction()) {
+        await session.abortTransaction();
+      }
       session.endSession();
       throw err;
     }

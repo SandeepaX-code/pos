@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 import { connectToDatabase } from "../src/lib/mongoose";
 import {
@@ -166,16 +167,20 @@ async function upsertSupplier(
   ).exec();
 }
 
-async function upsertTable(source: (typeof tables)[number], branchId: string) {
+async function upsertTable(source: (typeof tables)[number], branchId: string, index: number) {
+  const isValidBillId = source.billId && mongoose.Types.ObjectId.isValid(source.billId);
   return RestaurantTableModel.findOneAndUpdate(
     { label: source.label, branchId },
     {
+      tableNumber: index + 1,
       label: source.label,
       seats: source.seats,
       zone: source.zone,
+      floor: 0,
+      section: source.zone,
       status: source.status,
       branchId,
-      billId: source.billId,
+      billId: isValidBillId ? new mongoose.Types.ObjectId(source.billId) : undefined,
     },
     { upsert: true, new: true, setDefaultsOnInsert: true },
   ).exec();
@@ -364,9 +369,9 @@ async function main() {
   }
 
   const tableLookup = new Map<string, string>();
-  for (const table of tables) {
-    const document = await upsertTable(table, centralBranchId);
-    tableLookup.set(table.id, String(document?._id));
+  for (let i = 0; i < tables.length; i++) {
+    const document = await upsertTable(tables[i], centralBranchId, i);
+    tableLookup.set(tables[i].id, String(document?._id));
   }
 
   for (const customer of customers) {

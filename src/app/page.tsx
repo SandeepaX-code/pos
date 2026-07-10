@@ -1,3 +1,8 @@
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth/auth";
+import { userHasPermission } from "@/lib/permissions";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { RecentOrders } from "@/components/dashboard/recent-orders";
@@ -5,7 +10,33 @@ import { StatsGrid } from "@/components/dashboard/stats-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const hasDashboardView = userHasPermission(
+    session.user.role,
+    session.user.permissions ?? [],
+    "dashboard.view",
+  );
+
+  if (!hasDashboardView) {
+    if (userHasPermission(session.user.role, session.user.permissions ?? [], "orders.create")) {
+      redirect("/pos/dine-in");
+    } else if (userHasPermission(session.user.role, session.user.permissions ?? [], "kitchen.view")) {
+      redirect("/kitchen");
+    } else if (userHasPermission(session.user.role, session.user.permissions ?? [], "inventory.view")) {
+      redirect("/inventory");
+    } else if (userHasPermission(session.user.role, session.user.permissions ?? [], "reports.view")) {
+      redirect("/reports");
+    } else {
+      redirect("/login");
+    }
+  }
+
   return (
     <AppShell>
       <main className="space-y-6">
@@ -18,7 +49,7 @@ export default function Home() {
                 one production-ready workspace.
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 md:text-lg">
-                Aurum POS Suite gives super admins, managers, cashiers, waiters,
+                SYZYGY POS Suite gives super admins, managers, cashiers, waiters,
                 kitchen staff, and accountants a shared operating system with
                 role isolation, real-time order visibility, and printer-aware
                 checkout.

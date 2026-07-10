@@ -21,12 +21,12 @@ const monoFont = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Aurum POS Suite",
-    template: "%s | Aurum POS Suite",
+    default: "SYZYGY POS Suite",
+    template: "%s | SYZYGY POS Suite",
   },
   description:
     "Enterprise restaurant POS, kitchen, inventory, reporting, and management platform.",
-  applicationName: "Aurum POS Suite",
+  applicationName: "SYZYGY POS Suite",
 };
 
 export default function RootLayout({

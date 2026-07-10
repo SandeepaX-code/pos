@@ -55,6 +55,12 @@ async function main() {
     { name: "bills", path: "/api/bills", expectedStatuses: [401] },
     { name: "admin-suppliers", path: "/api/admin/suppliers", expectedStatuses: [401] },
     { name: "admin-purchase-orders", path: "/api/admin/purchase-orders", expectedStatuses: [401] },
+    { name: "reports-sales", path: "/api/admin/reports/sales", expectedStatuses: [401] },
+    { name: "reports-revenue", path: "/api/admin/reports/revenue", expectedStatuses: [401] },
+    { name: "reports-best-sellers", path: "/api/admin/reports/best-sellers", expectedStatuses: [401] },
+    { name: "reports-categories", path: "/api/admin/reports/categories", expectedStatuses: [401] },
+    { name: "reports-profit-loss", path: "/api/admin/reports/profit-loss", expectedStatuses: [401] },
+    { name: "reports-staff", path: "/api/admin/reports/staff", expectedStatuses: [401] },
   ];
 
   const startedAt = Date.now();

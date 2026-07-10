@@ -14,24 +14,24 @@ import type {
 } from "@/types/domain";
 
 export const restaurantBrand = {
-  name: "Aurum Bistro",
+  name: "SYZYGY RESTAURANTS",
   slogan: "Precision service for high-volume restaurants",
   address: "24 Golden Lane, Colombo, Sri Lanka",
   phone: "+94 11 555 0199",
-  email: "hello@aurumbistro.com",
+  email: "hello@syzygyrestaurants.com",
 };
 
 export const branches: Branch[] = [
   {
     id: "branch-central",
-    name: "Aurum Bistro Central",
+    name: "SYZYGY Central",
     code: "CEN",
     city: "Colombo",
     address: "24 Golden Lane, Colombo",
   },
   {
     id: "branch-marina",
-    name: "Aurum Bistro Marina",
+    name: "SYZYGY Marina",
     code: "MAR",
     city: "Galle",
     address: "11 Ocean View, Galle",
@@ -43,7 +43,7 @@ export const users: User[] = [
     id: "user-super-admin",
     fullName: "Nimal Perera",
     username: "superadmin",
-    email: "admin@aurumbistro.com",
+    email: "admin@syzygyrestaurants.com",
     phone: "+94 77 123 4567",
     role: "superAdmin",
     branchId: "branch-central",
@@ -54,7 +54,7 @@ export const users: User[] = [
     id: "user-cashier",
     fullName: "Kavindi Silva",
     username: "cashier1",
-    email: "cashier@aurumbistro.com",
+    email: "cashier@syzygyrestaurants.com",
     phone: "+94 77 246 8135",
     role: "cashier",
     branchId: "branch-central",

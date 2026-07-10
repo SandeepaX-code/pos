@@ -17,6 +17,7 @@ import { ActivityLogModel } from "@/models/activity-log";
 import { RefreshTokenModel } from "@/models/refresh-token";
 import { RoleModel } from "@/models/role";
 import { UserModel } from "@/models/user";
+import { PermissionModel } from "@/models/permission";
 import { jsonError } from "@/utils/http";
 
 import { comparePassword, hashPassword } from "./password";
@@ -140,6 +141,8 @@ export async function resolveRequestUser(
 }
 
 async function getRolePermissions(role: string) {
+  // Explicitly reference PermissionModel to prevent tree-shaking
+  const _unused = PermissionModel;
   const roleDoc = await RoleModel.findOne({ name: role, active: true })
     .populate("permissions")
     .lean<{ permissions?: Array<{ key?: string }> }>();
@@ -521,60 +524,64 @@ export const authOptions: NextAuthOptions = {
             }
           | undefined,
       ) {
-        const parsed = credentialsSchema.safeParse({
-          username: credentials?.username ?? "",
-          password: credentials?.password ?? "",
-        });
+        try {
+          const parsed = credentialsSchema.safeParse({
+            username: credentials?.username ?? "",
+            password: credentials?.password ?? "",
+          });
 
-        if (!parsed.success) {
+          if (!parsed.success) {
+            return null;
+          }
+
+          await connectToDatabase();
+
+          const user = await UserModel.findOne({
+            username: parsed.data.username,
+            active: true,
+          })
+            .select(
+              "+passwordHash fullName username email phone role branchId avatar",
+            )
+            .lean();
+
+          if (!user) {
+            return null;
+          }
+
+          const ok = await comparePassword(
+            parsed.data.password,
+            String((user as { passwordHash: string }).passwordHash),
+          );
+
+          if (!ok) {
+            return null;
+          }
+
+          const permissions = await getRolePermissions(user.role);
+
+          await ActivityLogModel.create({
+            userId: user._id,
+            userName: user.fullName,
+            action: "login",
+            entity: "auth",
+            entityId: user._id,
+            branchId: user.branchId,
+            metadata: { username: user.username, provider: "nextauth" },
+          });
+          return {
+            id: String(user._id),
+            name: user.fullName,
+            email: user.email,
+            image: user.avatar ?? undefined,
+            role: user.role,
+            branchId: String(user.branchId),
+            permissions,
+          } as never;
+        } catch (error: any) {
+          console.error("NextAuth Authorize: Unexpected error:", error);
           return null;
         }
-
-        await connectToDatabase();
-
-        const user = await UserModel.findOne({
-          username: parsed.data.username,
-          active: true,
-        })
-          .select(
-            "+passwordHash fullName username email phone role branchId avatar",
-          )
-          .lean();
-
-        if (!user) {
-          return null;
-        }
-
-        const ok = await comparePassword(
-          parsed.data.password,
-          String((user as { passwordHash: string }).passwordHash),
-        );
-
-        if (!ok) {
-          return null;
-        }
-
-        const permissions = await getRolePermissions(user.role);
-
-        await ActivityLogModel.create({
-          userId: user._id,
-          userName: user.fullName,
-          action: "login",
-          entity: "auth",
-          entityId: user._id,
-          branchId: user.branchId,
-          metadata: { username: user.username, provider: "nextauth" },
-        });
-
-        return {
-          id: String(user._id),
-          name: user.fullName,
-          email: user.email,
-          image: user.avatar ?? undefined,
-          role: user.role,
-          branchId: String(user.branchId),
-          permissions,
-        } as never;
       },
     }),
   ],
