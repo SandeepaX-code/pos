@@ -239,7 +239,11 @@ export class CheckoutService {
         } else {
           // Transition existing pending order to paid
           order.status = "paid";
-          order.cashierId = parsed.cashierId ? new mongoose.Types.ObjectId(parsed.cashierId) : undefined;
+          order.cashierId = parsed.cashierId
+            ? new mongoose.Types.ObjectId(parsed.cashierId)
+            : parsed.waiterId
+              ? new mongoose.Types.ObjectId(parsed.waiterId)
+              : undefined;
           await order.save({ session });
         }
 
@@ -250,7 +254,11 @@ export class CheckoutService {
             branchId: new mongoose.Types.ObjectId(branch),
             tableId: parsed.tableId ? new mongoose.Types.ObjectId(parsed.tableId) : undefined,
             customerId: parsed.customerId ? new mongoose.Types.ObjectId(parsed.customerId) : undefined,
-            cashierId: parsed.cashierId ? new mongoose.Types.ObjectId(parsed.cashierId) : undefined,
+            cashierId: parsed.cashierId
+              ? new mongoose.Types.ObjectId(parsed.cashierId)
+              : parsed.waiterId
+                ? new mongoose.Types.ObjectId(parsed.waiterId)
+                : undefined,
             cashierName: parsed.waiterName,
             tableLabel: parsed.tableLabel,
             customerName: parsed.customerName,
@@ -271,7 +279,11 @@ export class CheckoutService {
             orderId: order._id,
             billId: bill._id,
             branchId: new mongoose.Types.ObjectId(branch),
-            cashierId: parsed.cashierId ? new mongoose.Types.ObjectId(parsed.cashierId) : undefined,
+            cashierId: parsed.cashierId
+              ? new mongoose.Types.ObjectId(parsed.cashierId)
+              : parsed.waiterId
+                ? new mongoose.Types.ObjectId(parsed.waiterId)
+                : undefined,
             amount: order.grandTotal,
             method: parsed.paymentMethod,
             status: "completed",
@@ -280,8 +292,8 @@ export class CheckoutService {
           session
         );
 
-        let kitchenOrder: any = null;
-        if (isNewOrder) {
+        let kitchenOrder = await KitchenOrderModel.findOne({ orderId: order._id }).session(session);
+        if (!kitchenOrder) {
           const kitchenOrderDocs = await KitchenOrderModel.create(
             [
               {
@@ -311,7 +323,7 @@ export class CheckoutService {
             {
               status: "cleaning",
               billId: bill._id,
-              currentOrderId: undefined,
+              currentOrderId: null,
             },
             session
           );
