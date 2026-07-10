@@ -47,7 +47,7 @@ type ApiProduct = {
   image?: string; price: number; cost?: number; available: boolean; stock?: number;
   variants?: unknown[]; addons?: unknown[]; lowStockThreshold?: number;
 };
-type ApiTable = { _id: string; id?: string; label: string; seats?: number; zone?: string; status: string; billId?: string };
+type ApiTable = { _id: string; id?: string; label?: string; tableName?: string; seats?: number; capacity?: number; zone?: string; status: string; billId?: string };
 type ApiCustomer = { _id: string; id?: string; name: string; phone?: string; email?: string; loyaltyPoints?: number };
 
 const taxRate = 0.08;
@@ -363,7 +363,7 @@ export function PosWorkspace({ mode }: { mode: "dine-in" | "takeaway" }) {
       const payload = {
         branchId: session.user.branchId,
         tableId,
-        tableLabel: source === "dine-in" && selectedTable ? selectedTable.label : undefined,
+        tableLabel: source === "dine-in" && selectedTable ? (selectedTable.label || selectedTable.tableName) : undefined,
         customerId,
         customerName: selectedCustomer?.name,
         waiterId: session.user.id,
@@ -590,7 +590,7 @@ export function PosWorkspace({ mode }: { mode: "dine-in" | "takeaway" }) {
                 <option value="">-- Select Table --</option>
                 {tables.map((table) => (
                   <option key={resolveId(table)} value={resolveId(table)}>
-                    {table.label} - {table.status}
+                    {table.label || table.tableName} - {table.status}
                   </option>
                 ))}
               </select>

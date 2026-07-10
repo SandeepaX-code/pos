@@ -8,10 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 type ApiTable = {
-  _id: string;
-  label: string;
-  seats: number;
-  zone: string;
+  id: string;
+  tableName: string;
+  capacity: number;
+  section: string;
   status: string;
   billId?: string;
 };
@@ -63,37 +63,40 @@ export default function TablesPage() {
           </div>
         ) : tables.length ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {tables.map((table) => (
-              <Card key={table._id} className="overflow-hidden">
-                <CardContent className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        {table.zone || "Main Hall"}
+            {tables.map((table) => {
+              const statusKey = (table.status || "available").toLowerCase();
+              return (
+                <Card key={table.id} className="overflow-hidden">
+                  <CardContent className="space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                          {table.section || "Main Hall"}
+                        </div>
+                        <div className="mt-1 text-3xl font-semibold text-slate-950">
+                          {table.tableName}
+                        </div>
                       </div>
-                      <div className="mt-1 text-3xl font-semibold text-slate-950">
-                        {table.label}
+                      <Badge className={statusStyles[statusKey] || "bg-slate-100 text-slate-700"}>
+                        {statusKey}
+                      </Badge>
+                    </div>
+                    <div className="rounded-[22px] bg-gradient-to-br from-orange-100 to-orange-50 p-6 text-center text-xl font-semibold text-slate-950">
+                      {table.capacity} seats
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-slate-500">
+                      <span>Table ID</span>
+                      <span className="font-mono text-xs">{table.id}</span>
+                    </div>
+                    {table.billId ? (
+                      <div className="rounded-[18px] border border-orange-100 bg-orange-50 px-4 py-3 text-sm text-slate-700">
+                        Active bill {table.billId}
                       </div>
-                    </div>
-                    <Badge className={statusStyles[table.status] || "bg-slate-100 text-slate-700"}>
-                      {table.status}
-                    </Badge>
-                  </div>
-                  <div className="rounded-[22px] bg-gradient-to-br from-orange-100 to-orange-50 p-6 text-center text-xl font-semibold text-slate-950">
-                    {table.seats} seats
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-slate-500">
-                    <span>Table ID</span>
-                    <span className="font-mono text-xs">{table._id}</span>
-                  </div>
-                  {table.billId ? (
-                    <div className="rounded-[18px] border border-orange-100 bg-orange-50 px-4 py-3 text-sm text-slate-700">
-                      Active bill {table.billId}
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
-            ))}
+                    ) : null}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         ) : (
           <div className="py-12 text-center text-sm text-slate-500">
