@@ -292,6 +292,83 @@ export class CheckoutService {
     }
   }
 
+  async appendItemsToOrder(orderId: string, newItems: OrderItem[]) {
+    await connectToDatabase();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const order = await this.orders.findById(orderId, session);
+      if (!order) {
+        throw new Error("Order not found");
+      }
+
+      if (order.status === "void" || order.status === "paid") {
+        throw new Error("Cannot add items to a void or paid order");
+      }
+
+      // Append items to order
+      const currentItems = order.items ? order.items.toObject() : [];
+      const updatedItems: OrderItem[] = currentItems.map((item: any) => ({
+        productId: String(item.productId),
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        notes: item.notes || undefined,
+        modifiers: item.modifiers || [],
+      }));
+
+      for (const newItem of newItems) {
+        const existing = updatedItems.find(
+          (item) => String(item.productId) === String(newItem.productId)
+        );
+        if (existing) {
+          existing.quantity += newItem.quantity;
+        } else {
+          updatedItems.push(newItem);
+        }
+      }
+
+      // Recalculate totals
+      const subtotal = sumLineItems(updatedItems);
+      const tax = Math.round(subtotal * 0.08);
+      const serviceCharge = Math.round(subtotal * 0.05);
+      const grandTotal = Math.max(
+        subtotal - (order.discount || 0) + tax + serviceCharge,
+        0
+      );
+
+      // Update Order
+      const updatedOrder = await this.orders.updateById(
+        orderId,
+        {
+          items: updatedItems,
+          subtotal,
+          tax,
+          serviceCharge,
+          grandTotal,
+        },
+        session
+      );
+
+      // Update Kitchen Order items as well (if KDS needs update)
+      const kitchenOrder = await KitchenOrderModel.findOne({ orderId }, null, { session });
+      if (kitchenOrder) {
+        kitchenOrder.items = updatedItems as any;
+        await kitchenOrder.save({ session });
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return updatedOrder;
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
+  }
+
   async listBills(filter: Record<string, unknown> = {}) {
     await connectToDatabase();
     return this.bills.list(filter);

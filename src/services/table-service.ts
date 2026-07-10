@@ -8,6 +8,7 @@ import {
   tableStatusFromApi,
   toTableApiModel,
 } from "@/lib/table-management/mapper";
+import { OrderModel } from "@/models/order";
 
 type TableModelStatus =
   | "available"
@@ -315,6 +316,83 @@ export class TableService {
       session.endSession();
 
       return toTableApiModel(table);
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
+  }
+
+  async occupyTable(id: string, user: AuthUser) {
+    await connectToDatabase();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const table = await this.tableRepository.findById(id, session);
+      if (!table || !table.isActive) {
+        throw new TableManagementError("Table not found", "NOT_FOUND");
+      }
+
+      const from = table.status as ModelStatus;
+      if (from !== "available" && from !== "reserved") {
+        throw new TableManagementError(
+          "Table is not available for occupancy",
+          "INVALID_TRANSITION"
+        );
+      }
+
+      // Create a placeholder/active order for this table
+      const orderNumber = `ORD-T${table.tableNumber}-${new Date().getTime().toString().slice(-4)}`;
+      const orderDocs = await OrderModel.create(
+        [
+          {
+            orderNumber,
+            branchId: table.branchId,
+            tableId: table._id,
+            tableLabel: table.label,
+            waiterId: new mongoose.Types.ObjectId(user.id),
+            waiterName: user.role === "superAdmin" ? "Super Admin" : "Waiter",
+            status: "pending",
+            items: [],
+            subtotal: 0,
+            discount: 0,
+            tax: 0,
+            serviceCharge: 0,
+            grandTotal: 0,
+          },
+        ],
+        { session }
+      );
+      const order = orderDocs[0];
+
+      table.status = "occupied";
+      table.currentOrderId = order._id;
+      table.updatedBy = new mongoose.Types.ObjectId(user.id);
+      await table.save({ session });
+
+      await ActivityLogModel.create(
+        [
+          {
+            userId: new mongoose.Types.ObjectId(user.id),
+            userName: user.id,
+            action: "table_occupy",
+            entity: "Table",
+            entityId: table._id,
+            branchId: table.branchId,
+            metadata: { from, to: "occupied", orderId: order._id },
+          },
+        ],
+        { session }
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        table: toTableApiModel(table),
+        orderId: String(order._id),
+      };
     } catch (err) {
       await session.abortTransaction();
       session.endSession();

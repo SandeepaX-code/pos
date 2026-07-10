@@ -19,7 +19,7 @@ export const POST = requireAuth(async (req) => {
 
   const body = await req.json();
   try {
-    const result = await checkoutOrder(body);
+    const result = await checkoutOrder(body, req.user);
     return jsonSuccess(result, 201, "Order created");
   } catch (e: unknown) {
     const missing = (e as { missingItems?: unknown })?.missingItems;

@@ -28,9 +28,9 @@ function sumLineItems(items: OrderItem[]) {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
 
-export async function checkoutOrder(input: unknown) {
+export async function checkoutOrder(input: unknown, user?: any) {
   const service = new CheckoutService();
-  return service.checkoutOrder(input);
+  return service.checkoutOrder(input, user);
 }
 
 export async function adjustInventory(input: unknown) {
