@@ -545,8 +545,17 @@ export function PosWorkspace({ mode }: { mode: "dine-in" | "takeaway" }) {
                 onClick={() => addItem(product)}
                 className={`group overflow-hidden rounded-[24px] border bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(249,115,22,0.15)] ${product.available ? "border-orange-100" : "border-slate-200 opacity-70"}`}
               >
-                <div className="flex h-40 items-center justify-center rounded-[18px] bg-gradient-to-br from-orange-100 via-orange-50 to-amber-100 text-6xl text-orange-500">
-                  ðŸ½ï¸
+                <div className="flex h-40 items-center justify-center rounded-[18px] bg-gradient-to-br from-orange-100 via-orange-50 to-amber-100 text-6xl text-orange-500 overflow-hidden relative">
+                  {product.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    "🍽️"
+                  )}
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-3">
                   <div>
