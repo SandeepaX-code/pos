@@ -57,7 +57,7 @@ export function DashboardCharts() {
           <CardTitle>Weekly Revenue</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[320px]">
+          <div className="h-[230px]">
             <Line
               options={chartOptions}
               data={{
@@ -86,7 +86,7 @@ export function DashboardCharts() {
           <CardTitle>Monthly Revenue</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[320px]">
+          <div className="h-[230px]">
             <Bar
               options={chartOptions}
               data={{
@@ -118,7 +118,7 @@ export function DashboardCharts() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-            <div className="h-[280px]">
+            <div className="h-[210px]">
               <Line
                 options={chartOptions}
                 data={{
@@ -136,24 +136,24 @@ export function DashboardCharts() {
                 }}
               />
             </div>
-            <div className="grid gap-3 rounded-[24px] bg-orange-50 p-5">
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <div className="text-sm text-slate-500">Profit margin</div>
-                <div className="mt-2 text-3xl font-semibold text-slate-950">
+            <div className="grid gap-2 rounded-[20px] bg-orange-50/50 p-3 sm:grid-cols-3 md:grid-cols-1">
+              <div className="rounded-xl bg-white p-3 shadow-xs">
+                <div className="text-[10px] uppercase tracking-wider text-slate-500">Profit margin</div>
+                <div className="mt-1 text-xl font-bold text-slate-950">
                   67.8%
                 </div>
               </div>
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <div className="text-sm text-slate-500">
-                  Year-over-year growth
+              <div className="rounded-xl bg-white p-3 shadow-xs">
+                <div className="text-[10px] uppercase tracking-wider text-slate-500">
+                  YoY Growth
                 </div>
-                <div className="mt-2 text-3xl font-semibold text-slate-950">
+                <div className="mt-1 text-xl font-bold text-slate-950">
                   +18.2%
                 </div>
               </div>
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <div className="text-sm text-slate-500">Average basket</div>
-                <div className="mt-2 text-3xl font-semibold text-slate-950">
+              <div className="rounded-xl bg-white p-3 shadow-xs">
+                <div className="text-[10px] uppercase tracking-wider text-slate-500">Avg Basket</div>
+                <div className="mt-1 text-xl font-bold text-slate-950">
                   LKR 1,860
                 </div>
               </div>
