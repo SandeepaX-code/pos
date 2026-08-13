@@ -4,7 +4,8 @@ import {
   Bell,
   ChefHat,
   Grid2x2,
-  HeartPulse,
+  Settings,
+  Sliders,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -37,8 +38,8 @@ const navigation = [
   { label: "Suppliers", href: "/suppliers", icon: Package, permission: "suppliers.manage" },
   { label: "Printers", href: "/printers", icon: Printer, permission: "printers.manage" },
   { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Settings", href: "/settings", icon: HeartPulse, permission: "settings.manage" },
-  { label: "Menu Editor", href: "/admin/menu", icon: UtensilsCrossed, superAdminOnly: true },
+  { label: "Settings", href: "/settings", icon: Settings, permission: "settings.manage" },
+  { label: "Menu Editor", href: "/admin/menu", icon: Sliders, superAdminOnly: true },
 ];
 
 export function Sidebar() {
