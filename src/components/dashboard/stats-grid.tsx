@@ -5,7 +5,7 @@ import { dashboardMetrics } from "@/data/restaurant";
 
 export function StatsGrid() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
       {dashboardMetrics.map((metric) => {
         const positive = metric.delta >= 0;
 

@@ -51,7 +51,7 @@ const chartOptions = {
 
 export function DashboardCharts() {
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div className="grid gap-4 2xl:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Weekly Revenue</CardTitle>
@@ -112,7 +112,7 @@ export function DashboardCharts() {
         </CardContent>
       </Card>
 
-      <Card className="xl:col-span-2">
+      <Card className="2xl:col-span-2">
         <CardHeader>
           <CardTitle>Yearly Revenue</CardTitle>
         </CardHeader>

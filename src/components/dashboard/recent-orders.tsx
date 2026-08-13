@@ -134,7 +134,7 @@ export function RecentOrders() {
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+    <div className="grid gap-4 2xl:grid-cols-[1.2fr_0.8fr]">
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Orders</CardTitle>

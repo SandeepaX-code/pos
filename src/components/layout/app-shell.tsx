@@ -3,8 +3,8 @@ import { Topbar } from "@/components/layout/topbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-screen max-w-[1800px] gap-4 p-4 lg:p-6">
-      <div className="hidden w-[300px] shrink-0 overflow-hidden rounded-[32px] border border-orange-100 bg-white/85 shadow-[0_30px_100px_rgba(222,143,46,0.12)] xl:block">
+    <div className="mx-auto flex min-h-screen max-w-[1800px] gap-4 p-3 lg:p-4">
+      <div className="hidden w-[260px] shrink-0 overflow-hidden rounded-[32px] border border-orange-100 bg-white/85 shadow-[0_30px_100px_rgba(222,143,46,0.12)] xl:block">
         <Sidebar />
       </div>
 
