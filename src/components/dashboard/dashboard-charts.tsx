@@ -52,7 +52,7 @@ const chartOptions = {
 export function DashboardCharts() {
   return (
     <div className="grid gap-4 2xl:grid-cols-2">
-      <Card>
+      <Card className="border border-orange-100/50 bg-white/95 shadow-[0_10px_30px_rgba(148,163,184,0.05)] hover:shadow-[0_20px_50px_rgba(249,115,22,0.06)] hover:border-orange-200/50 transition-all duration-300">
         <CardHeader>
           <CardTitle>Weekly Revenue</CardTitle>
         </CardHeader>
@@ -81,7 +81,7 @@ export function DashboardCharts() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border border-orange-100/50 bg-white/95 shadow-[0_10px_30px_rgba(148,163,184,0.05)] hover:shadow-[0_20px_50px_rgba(249,115,22,0.06)] hover:border-orange-200/50 transition-all duration-300">
         <CardHeader>
           <CardTitle>Monthly Revenue</CardTitle>
         </CardHeader>
@@ -112,7 +112,7 @@ export function DashboardCharts() {
         </CardContent>
       </Card>
 
-      <Card className="2xl:col-span-2">
+      <Card className="2xl:col-span-2 border border-orange-100/50 bg-white/95 shadow-[0_10px_30px_rgba(148,163,184,0.05)] hover:shadow-[0_20px_50px_rgba(249,115,22,0.06)] hover:border-orange-200/50 transition-all duration-300">
         <CardHeader>
           <CardTitle>Yearly Revenue</CardTitle>
         </CardHeader>

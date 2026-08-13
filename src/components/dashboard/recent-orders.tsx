@@ -135,10 +135,10 @@ export function RecentOrders() {
 
   return (
     <div className="grid gap-4 2xl:grid-cols-[1.2fr_0.8fr]">
-      <Card>
+      <Card className="border border-orange-100/50 bg-white/95 shadow-[0_10px_30px_rgba(148,163,184,0.05)]">
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Orders</CardTitle>
-          <Badge>{orders.length} live</Badge>
+          <Badge className="bg-orange-500/10 text-orange-600 border border-orange-200/50 font-bold">{orders.length} live</Badge>
         </CardHeader>
         <CardContent className="space-y-4">
           {orders.length ? (
@@ -146,25 +146,34 @@ export function RecentOrders() {
               const orderId = order.id || (order as { _id?: string })._id || "";
               const StateIcon = orderStateIcon[order.status as keyof typeof orderStateIcon] || Clock3;
 
+              // Color classes based on status
+              const statusColor = 
+                order.status === "paid" ? "emerald" :
+                order.status === "ready" ? "teal" :
+                order.status === "preparing" ? "amber" :
+                order.status === "pending" ? "orange" : "rose";
+
               return (
                 <div
                   key={orderId}
-                  className="rounded-[24px] border border-orange-100 bg-orange-50/40 p-4"
+                  className="rounded-[24px] border border-orange-100/60 bg-gradient-to-br from-white to-orange-50/20 p-4 shadow-[0_10px_20px_rgba(148,163,184,0.02)] hover:border-orange-300/40 hover:shadow-md transition-all duration-300 ease-out group"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                        <StateIcon className="h-4 w-4 text-orange-600" />
-                        {order.orderNumber}
-                        <span className="ml-2 text-xs font-medium text-slate-500">
+                      <div className="flex items-center gap-2.5 text-sm font-bold text-slate-950">
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-xl bg-${statusColor}-50 text-${statusColor}-600 border border-${statusColor}-100/30 transition-transform duration-300 group-hover:scale-105`}>
+                          <StateIcon className="h-4 w-4" />
+                        </div>
+                        <span className="tracking-tight">{order.orderNumber}</span>
+                        <span className="ml-1 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                           {order.tableLabel ?? "Take Away"}
                         </span>
                       </div>
-                      <div className="mt-1 text-sm text-slate-500">
+                      <div className="mt-2 text-xs font-semibold text-slate-400 pl-10">
                         {order.waiterName} • {order.items?.length ?? 0} items
                       </div>
                       {isSuperAdmin && (
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3.5 flex gap-2 pl-10">
                           <button
                             onClick={() => {
                               setEditingOrder(order);
@@ -173,13 +182,13 @@ export function RecentOrders() {
                               setEditNotes(order.notes || "");
                               setEditDiscount(order.discount || 0);
                             }}
-                            className="px-3 py-1 bg-slate-950 text-white hover:bg-slate-800 text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                            className="px-3 py-1.5 bg-slate-950 text-white hover:bg-slate-800 text-[10px] font-bold rounded-lg shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteOrder(orderId)}
-                            className="px-3 py-1 bg-rose-600 text-white hover:bg-rose-700 text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                            className="px-3 py-1.5 bg-rose-600 text-white hover:bg-rose-700 text-[10px] font-bold rounded-lg shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
                           >
                             Cancel
                           </button>
@@ -188,17 +197,18 @@ export function RecentOrders() {
                     </div>
 
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-slate-950">
+                      <div className="text-base font-bold text-slate-950">
                         {new Intl.NumberFormat("en-US", {
                           style: "currency",
                           currency: "LKR",
                           maximumFractionDigits: 0,
                         }).format(order.grandTotal)}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="mt-1 flex items-center justify-end gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <span className={`h-1.5 w-1.5 rounded-full ${order.priority === "high" ? "bg-rose-500 animate-pulse" : order.priority === "normal" ? "bg-amber-500" : "bg-slate-300"}`} />
                         Priority: {order.priority}
                       </div>
-                      <div className="mt-3 flex justify-end">
+                      <div className="mt-3.5 flex justify-end">
                         <PermissionGatedReprint
                           order={order}
                           paymentMethod="cash"
@@ -210,7 +220,7 @@ export function RecentOrders() {
               );
             })
           ) : (
-            <div className="py-6 text-center text-sm text-slate-500">
+            <div className="py-8 text-center text-xs font-semibold text-slate-400">
               No recent orders found.
             </div>
           )}
@@ -218,41 +228,41 @@ export function RecentOrders() {
       </Card>
 
       <div className="grid gap-4">
-        <Card>
+        <Card className="border border-orange-100/50 bg-white/95 shadow-[0_10px_30px_rgba(148,163,184,0.05)]">
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Live Kitchen Orders</CardTitle>
-            <Badge>{kitchenOrders.length}</Badge>
+            <Badge className="bg-orange-500/10 text-orange-600 border border-orange-200/50 font-bold">{kitchenOrders.length}</Badge>
           </CardHeader>
           <CardContent className="space-y-3">
             {kitchenOrders.length ? (
               kitchenOrders.map((order) => (
                 <div
                   key={order.id || (order as { _id?: string })._id}
-                  className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-sm"
+                  className="rounded-[20px] border border-orange-100/40 bg-gradient-to-br from-white to-orange-50/10 p-4 shadow-xs"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="font-semibold text-slate-950">
+                      <div className="font-bold text-slate-950">
                         {order.orderNumber}
                       </div>
-                      <div className="mt-1 text-sm text-slate-500">
+                      <div className="mt-1 text-xs font-semibold text-slate-400">
                         Table {order.tableLabel ?? "N/A"}
                       </div>
                     </div>
-                    <Badge className="bg-emerald-50 text-emerald-700">
+                    <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100/50 font-bold">
                       {order.status}
                     </Badge>
                   </div>
-                  <div className="mt-3 space-y-2 text-sm text-slate-600">
+                  <div className="mt-3.5 space-y-2 border-t border-dashed border-orange-100/60 pt-3 text-xs text-slate-600">
                     {order.items?.map((item) => (
                       <div
                         key={item.productId}
                         className="flex items-center justify-between gap-3"
                       >
-                        <span>
+                        <span className="font-semibold text-slate-800">
                           {item.quantity}x {item.name}
                         </span>
-                        <span className="text-slate-400">
+                        <span className="text-[10px] text-slate-400 italic">
                           {item.notes ?? "No notes"}
                         </span>
                       </div>
@@ -261,33 +271,33 @@ export function RecentOrders() {
                 </div>
               ))
             ) : (
-              <div className="py-6 text-center text-sm text-slate-500">
+              <div className="py-8 text-center text-xs font-semibold text-slate-400">
                 No active kitchen orders.
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-orange-100/50 bg-white/95 shadow-[0_10px_30px_rgba(148,163,184,0.05)]">
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>System Alerts</CardTitle>
-            <Badge>{notifications.length}</Badge>
+            <Badge className="bg-rose-500/10 text-rose-600 border border-rose-200/50 font-bold">{notifications.length}</Badge>
           </CardHeader>
           <CardContent className="space-y-3">
             {notifications.length ? (
               notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className="rounded-[18px] border border-orange-100 bg-orange-50/70 p-4 text-sm text-slate-700"
+                  className="rounded-[18px] border border-orange-100/50 bg-gradient-to-br from-white to-orange-50/20 p-4 text-xs font-semibold text-slate-700 shadow-xs hover:border-orange-200 hover:shadow-xs transition-all duration-300"
                 >
-                  <div className="font-semibold text-slate-950">
+                  <div className="font-bold text-slate-950">
                     {notification.title}
                   </div>
-                  <div className="mt-1">{notification.message}</div>
+                  <div className="mt-1 font-medium text-slate-500">{notification.message}</div>
                 </div>
               ))
             ) : (
-              <div className="py-6 text-center text-sm text-slate-500">
+              <div className="py-8 text-center text-xs font-semibold text-slate-400">
                 No system alerts.
               </div>
             )}
