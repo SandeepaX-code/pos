@@ -24,6 +24,25 @@
 
 html {
   background: var(--background);
+  font-size: 13.5px;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 14.5px;
+  }
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 15px;
+  }
 }
 
 body {

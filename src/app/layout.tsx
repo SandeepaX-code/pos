@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -18,6 +18,13 @@ const monoFont = JetBrains_Mono({
   variable: "--font-code",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: {

@@ -3,45 +3,39 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "../src/lib/mongoose";
 import { UserModel } from "../src/models/user";
 import { BranchModel } from "../src/models/branch";
+import { RoleModel } from "../src/models/role";
 
-async function run() {
+async function main() {
   await connectToDatabase();
-  console.log("Connected to database.");
-
-  // Find Central Colombo branch or first branch
-  const branch = await BranchModel.findOne({ code: "branch-central" }).exec() 
-    || await BranchModel.findOne().exec();
-
+  const branch = await BranchModel.findOne({ code: "CEN" });
   if (!branch) {
-    console.error("No branch found to assign kitchen user.");
-    process.exit(1);
+    throw new Error("Central branch not found. Run seed script first.");
   }
-
-  const username = "kitchen1";
-  const existing = await UserModel.findOne({ username }).exec();
-  if (existing) {
-    console.log(`Kitchen user '${username}' already exists.`);
-    process.exit(0);
-  }
-
-  const defaultPasswordHash = await bcrypt.hash("Password123!", 12);
-  const kitchenUser = await UserModel.create({
-    fullName: "Ruwan Silva",
-    username,
-    email: "kitchen@aurumbistro.com",
-    phone: "+94 77 345 6789",
-    role: "kitchenStaff",
-    branchId: branch._id,
-    active: true,
-    passwordHash: defaultPasswordHash,
-  });
-
-  console.log("Kitchen user created successfully:", kitchenUser);
+  
+  const role = await RoleModel.findOne({ name: "kitchenStaff" });
+  const passwordHash = await bcrypt.hash("Password123!", 12);
+  
+  await UserModel.findOneAndUpdate(
+    { username: "kitchen1" },
+    {
+      fullName: "Kitchen Chef",
+      username: "kitchen1",
+      email: "kitchen@aurumbistro.com",
+      phone: "+94 77 246 1111",
+      role: "kitchenStaff",
+      roleId: role ? role._id : undefined,
+      branchId: branch._id,
+      active: true,
+      passwordHash,
+    },
+    { upsert: true, new: true }
+  );
+  
+  console.log("KITCHEN_USER_CREATED_SUCCESSFULLY");
+  process.exit(0);
 }
 
-run()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
