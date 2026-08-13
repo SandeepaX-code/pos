@@ -14,11 +14,11 @@ import type {
 } from "@/types/domain";
 
 export const restaurantBrand = {
-  name: "SYZYGY RESTAURANTS",
-  slogan: "Precision service for high-volume restaurants",
+  name: "Tanderrum.Ai",
+  slogan: "Next-generation AI-powered restaurant management",
   address: "24 Golden Lane, Colombo, Sri Lanka",
   phone: "+94 11 555 0199",
-  email: "hello@syzygyrestaurants.com",
+  email: "hello@tanderrum.ai",
 };
 
 export const branches: Branch[] = [

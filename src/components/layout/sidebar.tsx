@@ -6,6 +6,7 @@ import {
   Grid2x2,
   Settings,
   Sliders,
+  Sparkles,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -61,12 +62,12 @@ export function Sidebar() {
     <aside className="flex h-full flex-col gap-6 p-5">
       <div className="rounded-[28px] bg-[linear-gradient(135deg,_#0f172a_0%,_#111827_58%,_#1f2937_100%)] p-5 text-white shadow-[0_20px_60px_rgba(15,23,42,0.25)]">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-500/25">
-            <UtensilsCrossed className="h-6 w-6" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-400 text-white shadow-lg shadow-orange-500/25">
+            <Sparkles className="h-6 w-6 animate-pulse" />
           </div>
           <div>
-            <div className="text-lg font-semibold">{restaurantBrand.name}</div>
-            <div className="text-xs text-slate-300">Restaurant ERP</div>
+            <div className="text-lg font-semibold leading-tight">{restaurantBrand.name}</div>
+            <div className="text-[10px] text-slate-400 tracking-wider uppercase mt-0.5">Management Platform</div>
           </div>
         </div>
 
