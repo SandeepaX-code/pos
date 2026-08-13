@@ -117,8 +117,8 @@ export function DashboardCharts() {
           <CardTitle>Yearly Revenue</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-            <div className="h-[210px]">
+          <div className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
+            <div className="h-[210px] min-w-0 relative">
               <Line
                 options={chartOptions}
                 data={{
@@ -136,7 +136,7 @@ export function DashboardCharts() {
                 }}
               />
             </div>
-            <div className="grid gap-2 rounded-[20px] bg-orange-50/50 p-3 sm:grid-cols-3 md:grid-cols-1">
+            <div className="grid gap-2 rounded-[20px] bg-orange-50/50 p-3 sm:grid-cols-3 lg:grid-cols-1">
               <div className="rounded-xl bg-white p-3 shadow-xs">
                 <div className="text-[10px] uppercase tracking-wider text-slate-500">Profit margin</div>
                 <div className="mt-1 text-xl font-bold text-slate-950">
